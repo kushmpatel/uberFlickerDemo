@@ -20,12 +20,16 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.uber.kush.R;
+import com.uber.kush.adapter.AdapterPhotoList;
 import com.uber.kush.backgroundtask.NetworkCallAsync;
 import com.uber.kush.helper.JSonResponseParser;
 import com.uber.kush.helper.Result;
 import com.uber.kush.helper.UberLog;
 import com.uber.kush.interfaces.INetworkCallBack;
 import com.uber.kush.model.PhotoResponseVO;
+import com.uber.kush.model.PhotoVO;
+
+import java.util.List;
 
 public class PhotoListFragment extends Fragment implements SearchView.OnQueryTextListener,INetworkCallBack {
 
@@ -97,7 +101,7 @@ public class PhotoListFragment extends Fragment implements SearchView.OnQueryTex
     }
 
     private void setRecyclerLayoutManager(){
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(mActivity,3, LinearLayoutManager.HORIZONTAL,false);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(mActivity,3, LinearLayoutManager.VERTICAL,false);
         rvPhotoList.setLayoutManager(gridLayoutManager);
     }
 
@@ -106,6 +110,9 @@ public class PhotoListFragment extends Fragment implements SearchView.OnQueryTex
         String responseJson = result.mResponse;
         JSonResponseParser mJSonResponseParser = new JSonResponseParser();
         PhotoResponseVO mPhotoResponseVO = mJSonResponseParser.getPhotoResponseVO(responseJson);
+        List<PhotoVO> listPhotos = mPhotoResponseVO.getPhoto();
+        AdapterPhotoList mAdapterPhotoList = new AdapterPhotoList(mActivity,listPhotos);
+        rvPhotoList.setAdapter(mAdapterPhotoList);
         UberLog.d(PhotoListFragment.class.getSimpleName(),"Parsed Successfully");
     }
 }

@@ -3,14 +3,15 @@ package com.uber.kush.adapter;
 import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.uber.kush.R;
+import com.uber.kush.helper.UberLog;
 import com.uber.kush.model.PhotoVO;
 
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,12 +27,17 @@ public class AdapterPhotoList extends RecyclerView.Adapter<AdapterPhotoList.Hold
     @NonNull
     @Override
     public HolderPhoto onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return null;
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_row_photo, parent, false);
+        return new HolderPhoto(itemView);
     }
 
     @Override
     public void onBindViewHolder(@NonNull HolderPhoto holder, int position) {
-
+        try {
+            UberLog.d(AdapterPhotoList.class.getSimpleName(),"position->"+position+" Name->"+listPhotos.get(position).getTitle());
+        } catch (Exception ex){
+            ex.printStackTrace();
+        }
     }
 
     @Override
