@@ -1,4 +1,4 @@
-package com.uber.kush;
+package com.uber.kush.activity;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import com.uber.kush.R;
 import com.uber.kush.fragment.PhotoListFragment;
 
 public class PhotoListActivity extends AppCompatActivity {
