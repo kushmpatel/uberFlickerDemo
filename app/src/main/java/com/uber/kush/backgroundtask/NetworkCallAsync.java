@@ -18,9 +18,11 @@ import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
-public class NetworkCallAsync extends AsyncTask<String,Void,Result> {
+import static com.uber.kush.IConstants.*;
 
-    private String BASE_URL = "https://api.flickr.com/services/rest";
+public class NetworkCallAsync extends AsyncTask<HashMap,Void,Result> {
+
+    private String BASE_URL = HTTPS_SCHEME+"//"+FLICKR_DOMAIN+"/"+REQUEST_PATH;
     private INetworkCallBack mINetworkCallBack;
 
     public NetworkCallAsync(INetworkCallBack mINetworkCallBack){
@@ -28,17 +30,8 @@ public class NetworkCallAsync extends AsyncTask<String,Void,Result> {
     }
 
     @Override
-    protected Result doInBackground(String... strings) {
-        String searchText = strings[0];
-
-        HashMap<String, String> postDataParams = new HashMap();
-        postDataParams.put("method","flickr.photos.search");
-        postDataParams.put("api_key","3e7cc266ae2b0e0d78e279ce8e361736");
-        postDataParams.put("format","json");
-        postDataParams.put("nojsoncallback","1");
-        postDataParams.put("safe_search","1");
-        postDataParams.put("text",searchText);
-
+    protected Result doInBackground(HashMap... maps) {
+        HashMap<String, String> postDataParams = maps[0];
         Result responseResult = performPostCall(BASE_URL,postDataParams);
         return responseResult;
     }

@@ -19,7 +19,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Toast;
 
 import com.uber.kush.R;
 import com.uber.kush.adapter.AdapterPhotoList;
@@ -32,7 +31,21 @@ import com.uber.kush.model.PhotoResponseVO;
 import com.uber.kush.model.PhotoVO;
 import com.uber.kush.ui.ItemOffsetDecoration;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+import static com.uber.kush.IConstants.QUERY_PARAM_API_KEY;
+import static com.uber.kush.IConstants.QUERY_PARAM_FORMAT_KEY;
+import static com.uber.kush.IConstants.QUERY_PARAM_METHOD_KEY;
+import static com.uber.kush.IConstants.QUERY_PARAM_NO_JSON_CALLBACK_KEY;
+import static com.uber.kush.IConstants.QUERY_PARAM_PAGE_KEY;
+import static com.uber.kush.IConstants.QUERY_PARAM_PER_PAGE_KEY;
+import static com.uber.kush.IConstants.QUERY_PARAM_SAFE_SEARCH_KEY;
+import static com.uber.kush.IConstants.QUERY_PARAM_TEXT_KEY;
+import static com.uber.kush.IConstants.QUERY_PARAM_VALUE_FLICKR_PHOTOS_SEARCH_VALUE;
+import static com.uber.kush.IConstants.QUERY_PARAM_VALUE_JSON_VALUE;
+import static com.uber.kush.IConstants.QUERY_PARAM_VALUE_NO_JSON_CALLBACK_VALUE;
 
 public class PhotoListFragment extends Fragment implements SearchView.OnQueryTextListener,INetworkCallBack {
 
@@ -41,6 +54,11 @@ public class PhotoListFragment extends Fragment implements SearchView.OnQueryTex
     private RecyclerView rvPhotoList;
     private Toolbar toolbar;
     private INetworkCallBack mINetworkCallBack;
+    private int currentPage = 1;
+    private boolean loading = true;
+    private String mQuery;
+    List<PhotoVO> listPhotos = new ArrayList<>();
+    private AdapterPhotoList mAdapterPhotoList = null;
 
     @Override
     public void onAttach(Context context) {
@@ -76,8 +94,49 @@ public class PhotoListFragment extends Fragment implements SearchView.OnQueryTex
     private void setLayoutView(View view) {
         rvPhotoList = view.findViewById(R.id.rvPhotoList);
         toolbar = view.findViewById(R.id.toolbar);
+        rvPhotoList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if (dy > 0) {
+                    System.out.println("Scrolled Upwards");
+                    int visibleItemCount = ((LinearLayoutManager) rvPhotoList.getLayoutManager()).getChildCount();
+                    int totalItemCount = ((LinearLayoutManager) rvPhotoList.getLayoutManager()).getItemCount();
+                    int pastVisibleItems = ((LinearLayoutManager) rvPhotoList.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
+                    if (loading) {
+                        if ((visibleItemCount + pastVisibleItems) >= (totalItemCount)) {
+                            loading = false;
+                            try {
+                                doCallNextPage();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }
+            }
 
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+        });
         setRecyclerLayoutManager();
+    }
+
+    private void doCallNextPage() {
+        currentPage++;
+
+        HashMap<String, String> postDataParams = new HashMap();
+        postDataParams.put(QUERY_PARAM_METHOD_KEY,QUERY_PARAM_VALUE_FLICKR_PHOTOS_SEARCH_VALUE);
+        postDataParams.put(QUERY_PARAM_API_KEY,mActivity.getString(R.string.api_key));
+        postDataParams.put(QUERY_PARAM_FORMAT_KEY,QUERY_PARAM_VALUE_JSON_VALUE);
+        postDataParams.put(QUERY_PARAM_NO_JSON_CALLBACK_KEY,QUERY_PARAM_VALUE_NO_JSON_CALLBACK_VALUE);
+        postDataParams.put(QUERY_PARAM_SAFE_SEARCH_KEY,"1");
+        postDataParams.put(QUERY_PARAM_TEXT_KEY,mQuery);
+        postDataParams.put(QUERY_PARAM_PAGE_KEY,String.valueOf(currentPage));
+        postDataParams.put(QUERY_PARAM_PER_PAGE_KEY,String.valueOf(20));
+        NetworkCallAsync mNetworkCallAsync = new NetworkCallAsync(this);
+        mNetworkCallAsync.execute(postDataParams);
     }
 
     @Override
@@ -92,10 +151,20 @@ public class PhotoListFragment extends Fragment implements SearchView.OnQueryTex
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-        Toast.makeText(mActivity, "Searched Query is "+query, Toast.LENGTH_SHORT).show();
         hideKeyboard(mActivity);
+        currentPage = 1;
+        mQuery = query;
+        HashMap<String, String> postDataParams = new HashMap();
+        postDataParams.put(QUERY_PARAM_METHOD_KEY,QUERY_PARAM_VALUE_FLICKR_PHOTOS_SEARCH_VALUE);
+        postDataParams.put(QUERY_PARAM_API_KEY,mActivity.getString(R.string.api_key));
+        postDataParams.put(QUERY_PARAM_FORMAT_KEY,QUERY_PARAM_VALUE_JSON_VALUE);
+        postDataParams.put(QUERY_PARAM_NO_JSON_CALLBACK_KEY,QUERY_PARAM_VALUE_NO_JSON_CALLBACK_VALUE);
+        postDataParams.put(QUERY_PARAM_SAFE_SEARCH_KEY,"1");
+        postDataParams.put(QUERY_PARAM_TEXT_KEY,query);
+        postDataParams.put(QUERY_PARAM_PAGE_KEY,String.valueOf(currentPage));
+        postDataParams.put(QUERY_PARAM_PER_PAGE_KEY,String.valueOf(20));
         NetworkCallAsync mNetworkCallAsync = new NetworkCallAsync(this);
-        mNetworkCallAsync.execute(query);
+        mNetworkCallAsync.execute(postDataParams);
         return true;
     }
 
@@ -116,9 +185,17 @@ public class PhotoListFragment extends Fragment implements SearchView.OnQueryTex
         String responseJson = result.mResponse;
         JSonResponseParser mJSonResponseParser = new JSonResponseParser();
         PhotoResponseVO mPhotoResponseVO = mJSonResponseParser.getPhotoResponseVO(responseJson);
-        List<PhotoVO> listPhotos = mPhotoResponseVO.getPhoto();
-        AdapterPhotoList mAdapterPhotoList = new AdapterPhotoList(mActivity,listPhotos);
-        rvPhotoList.setAdapter(mAdapterPhotoList);
+        List<PhotoVO> tempListPhotos = mPhotoResponseVO.getPhoto();
+        loading = true;
+        listPhotos.addAll(tempListPhotos);
+        if(currentPage == 1) {
+            mAdapterPhotoList = new AdapterPhotoList(mActivity, listPhotos);
+            rvPhotoList.setAdapter(mAdapterPhotoList);
+        } else{
+            if(mAdapterPhotoList != null){
+                mAdapterPhotoList.notifyDataSetChanged();
+            }
+        }
         UberLog.d(PhotoListFragment.class.getSimpleName(),"Parsed Successfully");
     }
 
@@ -132,4 +209,5 @@ public class PhotoListFragment extends Fragment implements SearchView.OnQueryTex
         }
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
+
 }

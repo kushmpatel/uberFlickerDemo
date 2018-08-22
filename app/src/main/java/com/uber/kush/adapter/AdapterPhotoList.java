@@ -8,8 +8,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.uber.kush.R;
-import com.uber.kush.backgroundtask.DownloadAsyncTask;
 import com.uber.kush.model.PhotoVO;
 
 import java.util.ArrayList;
@@ -19,11 +21,17 @@ public class AdapterPhotoList extends RecyclerView.Adapter<AdapterPhotoList.Hold
     private List<PhotoVO> listPhotos = new ArrayList();
     private Activity mActivity;
     private int gridViewImageHeightWidth;
+    private final RequestOptions requestOptions;
 
     public AdapterPhotoList(Activity mActivity,List<PhotoVO> listPhotos){
         this.listPhotos = listPhotos;
         this.mActivity = mActivity;
         gridViewImageHeightWidth = mActivity.getResources().getDisplayMetrics().widthPixels * 1 / 3;
+        requestOptions = new RequestOptions();
+//        requestOptions.placeholder(R.drawable.default_file);
+//        requestOptions.error(R.drawable.default_file);
+        requestOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
+        requestOptions.override(gridViewImageHeightWidth, gridViewImageHeightWidth);
     }
 
     @NonNull
@@ -43,9 +51,11 @@ public class AdapterPhotoList extends RecyclerView.Adapter<AdapterPhotoList.Hold
                     photoVO.getId(),
                     photoVO.getSecret());
 
-            DownloadAsyncTask mDownloadAsyncTask = new DownloadAsyncTask(photoVO,holder,gridViewImageHeightWidth);
-            mDownloadAsyncTask.execute(url);
-            //UberLog.d(AdapterPhotoList.class.getSimpleName(),"position->"+position+" Name->"+listPhotos.get(position).getTitle());
+
+            Glide.with(mActivity).load(url).apply(requestOptions).into(holder.ivPhoto);
+
+            /*DownloadAsyncTask mDownloadAsyncTask = new DownloadAsyncTask(photoVO,holder,gridViewImageHeightWidth);
+            mDownloadAsyncTask.execute(url);*/
         } catch (Exception ex){
             ex.printStackTrace();
         }

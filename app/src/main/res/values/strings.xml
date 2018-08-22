@@ -2,4 +2,5 @@
     <string name="app_name">UberDemo</string>
     <string name="menu_search">Search</string>
     <string name="thumb_url">http://farm%1$s.static.flickr.com/%2$s/%3$s_%4$s.jpg</string>
+    <string name="api_key">3e7cc266ae2b0e0d78e279ce8e361736</string>
 </resources>
