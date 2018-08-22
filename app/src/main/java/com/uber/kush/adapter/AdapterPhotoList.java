@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.uber.kush.R;
-import com.uber.kush.helper.UberLog;
+import com.uber.kush.backgroundtask.DownloadAsyncTask;
 import com.uber.kush.model.PhotoVO;
 
 import java.util.ArrayList;
@@ -34,7 +34,16 @@ public class AdapterPhotoList extends RecyclerView.Adapter<AdapterPhotoList.Hold
     @Override
     public void onBindViewHolder(@NonNull HolderPhoto holder, int position) {
         try {
-            UberLog.d(AdapterPhotoList.class.getSimpleName(),"position->"+position+" Name->"+listPhotos.get(position).getTitle());
+            PhotoVO photoVO = listPhotos.get(position);
+            String url = String.format(mActivity.getString(R.string.thumb_url),
+                    photoVO.getFarm(),
+                    photoVO.getServer(),
+                    photoVO.getId(),
+                    photoVO.getSecret());
+
+            DownloadAsyncTask mDownloadAsyncTask = new DownloadAsyncTask(holder);
+            mDownloadAsyncTask.execute(url);
+            //UberLog.d(AdapterPhotoList.class.getSimpleName(),"position->"+position+" Name->"+listPhotos.get(position).getTitle());
         } catch (Exception ex){
             ex.printStackTrace();
         }
@@ -46,7 +55,7 @@ public class AdapterPhotoList extends RecyclerView.Adapter<AdapterPhotoList.Hold
     }
 
     public class HolderPhoto extends RecyclerView.ViewHolder {
-        ImageView ivPhoto;
+       public ImageView ivPhoto;
         public HolderPhoto(View itemView) {
             super(itemView);
             ivPhoto = (ImageView) itemView.findViewById(R.id.ivPhoto);
