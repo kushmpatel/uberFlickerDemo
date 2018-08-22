@@ -1,5 +1,6 @@
 package com.uber.kush.fragment;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -17,6 +18,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.uber.kush.R;
@@ -28,6 +30,7 @@ import com.uber.kush.helper.UberLog;
 import com.uber.kush.interfaces.INetworkCallBack;
 import com.uber.kush.model.PhotoResponseVO;
 import com.uber.kush.model.PhotoVO;
+import com.uber.kush.ui.ItemOffsetDecoration;
 
 import java.util.List;
 
@@ -90,6 +93,7 @@ public class PhotoListFragment extends Fragment implements SearchView.OnQueryTex
     @Override
     public boolean onQueryTextSubmit(String query) {
         Toast.makeText(mActivity, "Searched Query is "+query, Toast.LENGTH_SHORT).show();
+        hideKeyboard(mActivity);
         NetworkCallAsync mNetworkCallAsync = new NetworkCallAsync(this);
         mNetworkCallAsync.execute(query);
         return true;
@@ -103,6 +107,8 @@ public class PhotoListFragment extends Fragment implements SearchView.OnQueryTex
     private void setRecyclerLayoutManager(){
         GridLayoutManager gridLayoutManager = new GridLayoutManager(mActivity,3, LinearLayoutManager.VERTICAL,false);
         rvPhotoList.setLayoutManager(gridLayoutManager);
+        ItemOffsetDecoration itemDecoration = new ItemOffsetDecoration(mActivity, R.dimen.item_offset);
+        rvPhotoList.addItemDecoration(itemDecoration);
     }
 
     @Override
@@ -114,5 +120,16 @@ public class PhotoListFragment extends Fragment implements SearchView.OnQueryTex
         AdapterPhotoList mAdapterPhotoList = new AdapterPhotoList(mActivity,listPhotos);
         rvPhotoList.setAdapter(mAdapterPhotoList);
         UberLog.d(PhotoListFragment.class.getSimpleName(),"Parsed Successfully");
+    }
+
+    private void hideKeyboard(Activity activity) {
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        View view = activity.getCurrentFocus();
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = new View(activity);
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }
