@@ -18,10 +18,12 @@ import java.util.List;
 public class AdapterPhotoList extends RecyclerView.Adapter<AdapterPhotoList.HolderPhoto> {
     private List<PhotoVO> listPhotos = new ArrayList();
     private Activity mActivity;
+    private int gridViewImageHeightWidth;
 
     public AdapterPhotoList(Activity mActivity,List<PhotoVO> listPhotos){
         this.listPhotos = listPhotos;
         this.mActivity = mActivity;
+        gridViewImageHeightWidth = mActivity.getResources().getDisplayMetrics().widthPixels * 1 / 3;
     }
 
     @NonNull
@@ -41,7 +43,7 @@ public class AdapterPhotoList extends RecyclerView.Adapter<AdapterPhotoList.Hold
                     photoVO.getId(),
                     photoVO.getSecret());
 
-            DownloadAsyncTask mDownloadAsyncTask = new DownloadAsyncTask(holder);
+            DownloadAsyncTask mDownloadAsyncTask = new DownloadAsyncTask(photoVO,holder,gridViewImageHeightWidth);
             mDownloadAsyncTask.execute(url);
             //UberLog.d(AdapterPhotoList.class.getSimpleName(),"position->"+position+" Name->"+listPhotos.get(position).getTitle());
         } catch (Exception ex){
