@@ -107,7 +107,7 @@ public class PhotoListFragment extends Fragment implements SearchView.OnQueryTex
                     int totalItemCount = ((LinearLayoutManager) rvPhotoList.getLayoutManager()).getItemCount();
                     int pastVisibleItems = ((LinearLayoutManager) rvPhotoList.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
                     if (loading) {
-                        if ((visibleItemCount + pastVisibleItems) >= (totalItemCount)) {
+                        if ((visibleItemCount + pastVisibleItems) >= (totalItemCount - 3)) {
                             loading = false;
                             try {
                                 doCallNextPage();

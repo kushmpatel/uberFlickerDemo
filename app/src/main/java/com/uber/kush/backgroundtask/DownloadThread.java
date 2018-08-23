@@ -2,7 +2,6 @@ package com.uber.kush.backgroundtask;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.os.Handler;
 import android.os.Message;
 
@@ -64,7 +63,7 @@ public class DownloadThread extends Thread {
 
             Bitmap myBitmap = BitmapFactory.decodeFile(cacheFilePath.getAbsolutePath());
 
-            myBitmap = getResizedBitmap(myBitmap,gridViewImageHeightWidth,gridViewImageHeightWidth);
+            //myBitmap = getResizedBitmap(myBitmap,gridViewImageHeightWidth,gridViewImageHeightWidth);
 
             input.close();
 
@@ -85,7 +84,7 @@ public class DownloadThread extends Thread {
         }
     }
 
-    public Bitmap getResizedBitmap(Bitmap bm, int newHeight, int newWidth) {
+   /* public Bitmap getResizedBitmap(Bitmap bm, int newHeight, int newWidth) {
         int width = bm.getWidth();
         int height = bm.getHeight();
         float scaleWidth = ((float) newWidth) / width;
@@ -100,7 +99,7 @@ public class DownloadThread extends Thread {
                 matrix, false);
 
         return resizedBitmap;
-    }
+    }*/
 
     private void copyInputStreamToFile(InputStream in, File file) {
         FileOutputStream out = null;
