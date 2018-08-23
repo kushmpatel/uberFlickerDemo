@@ -1,10 +1,8 @@
 package com.uber.kush;
 
-import android.os.Environment;
-
 public class IConstants {
-    //public static final String CACHE_DIRECTORY_PATH = ApplicationStore.getApplicationPath() +"/uber/cache";
-    public static final String CACHE_DIRECTORY_PATH = Environment.getExternalStorageDirectory() +"/uber/cache";
+    public static final String CACHE_DIRECTORY_PATH = ApplicationStore.getApplicationPath() +"/uber/cache";
+    //public static final String CACHE_DIRECTORY_PATH = Environment.getExternalStorageDirectory() +"/uber/cache";
     public static final String HTTPS_SCHEME = "https:";
     public static final String FLICKR_DOMAIN = "api.flickr.com";
     public static final String REQUEST_PATH = "services/rest";
@@ -24,4 +22,5 @@ public class IConstants {
 
     public static final  int PERMISSION_REQUEST_CODE_FOR_WRITE = 3;
     public static final  int RECORD_SIZE = 20;
+    public static final int UPDATE_ITEM = 1;
 }

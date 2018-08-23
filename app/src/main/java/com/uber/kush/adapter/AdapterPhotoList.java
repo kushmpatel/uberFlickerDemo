@@ -4,6 +4,9 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,6 +18,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.uber.kush.R;
 import com.uber.kush.backgroundtask.DownloadAsyncTask;
+import com.uber.kush.backgroundtask.DownloadThread;
 import com.uber.kush.helper.UberLog;
 import com.uber.kush.model.PhotoVO;
 
@@ -23,12 +27,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.uber.kush.IConstants.CACHE_DIRECTORY_PATH;
+import static com.uber.kush.IConstants.UPDATE_ITEM;
 
 public class AdapterPhotoList extends RecyclerView.Adapter<AdapterPhotoList.HolderPhoto> {
     private List<PhotoVO> listPhotos = new ArrayList();
     private Activity mActivity;
     private int gridViewImageHeightWidth;
     private final RequestOptions requestOptions;
+    private Handler mHandler;
 
     public AdapterPhotoList(Activity mActivity,List<PhotoVO> listPhotos){
         this.listPhotos = listPhotos;
@@ -39,6 +45,17 @@ public class AdapterPhotoList extends RecyclerView.Adapter<AdapterPhotoList.Hold
 //        requestOptions.error(R.drawable.default_file);
         requestOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
         requestOptions.override(gridViewImageHeightWidth, gridViewImageHeightWidth);
+
+        mHandler = new Handler(){
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+
+                if(msg.what == UPDATE_ITEM){
+                    notifyItemChanged(msg.arg1);
+                }
+            }
+        };
     }
 
     @NonNull
@@ -66,10 +83,14 @@ public class AdapterPhotoList extends RecyclerView.Adapter<AdapterPhotoList.Hold
             if(cacheFilePath.exists()){
                 UberLog.d(DownloadAsyncTask.class.getSimpleName(),photoVO.getId()+" is already exist");
                 Bitmap bitmap = BitmapFactory.decodeFile(cacheFilePath.getAbsolutePath());
+                bitmap =  getResizedBitmap(bitmap,gridViewImageHeightWidth,gridViewImageHeightWidth);
                 holder.ivPhoto.setImageBitmap(bitmap);
             } else{
-                DownloadAsyncTask mDownloadAsyncTask = new DownloadAsyncTask(photoVO,this,gridViewImageHeightWidth,position);
-                mDownloadAsyncTask.execute(url);
+                /*DownloadAsyncTask mDownloadAsyncTask = new DownloadAsyncTask(photoVO,this,gridViewImageHeightWidth,position);
+                mDownloadAsyncTask.execute(url);*/
+
+                DownloadThread mDownloadThread = new DownloadThread(url,photoVO,this,gridViewImageHeightWidth,position,mHandler);
+                mDownloadThread.start();
             }
         } catch (Exception ex){
             ex.printStackTrace();
@@ -87,5 +108,22 @@ public class AdapterPhotoList extends RecyclerView.Adapter<AdapterPhotoList.Hold
             super(itemView);
             ivPhoto = (ImageView) itemView.findViewById(R.id.ivPhoto);
         }
+    }
+
+    public Bitmap getResizedBitmap(Bitmap bm, int newHeight, int newWidth) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        float scaleWidth = ((float) newWidth) / width;
+        float scaleHeight = ((float) newHeight) / height;
+        // CREATE A MATRIX FOR THE MANIPULATION
+        Matrix matrix = new Matrix();
+        // RESIZE THE BIT MAP
+        matrix.postScale(scaleWidth, scaleHeight);
+
+        // "RECREATE" THE NEW BITMAP
+        Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height,
+                matrix, false);
+
+        return resizedBitmap;
     }
 }
