@@ -1,5 +1,7 @@
 package com.uber.kush.model;
 
+import android.graphics.Bitmap;
+
 public class PhotoVO {
 
     /*"id": "43459894404",
@@ -21,7 +23,15 @@ public class PhotoVO {
     private int ispublic;
     private int isfriend;
     private int isfamily;
+    private Bitmap bitmap;
 
+    public Bitmap getBitmap() {
+        return bitmap;
+    }
+
+    public void setBitmap(Bitmap bitmap) {
+        this.bitmap = bitmap;
+    }
 
     public long getId() {
         return id;

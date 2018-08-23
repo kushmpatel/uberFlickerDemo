@@ -30,6 +30,12 @@ public class NetworkCallAsync extends AsyncTask<HashMap,Void,Result> {
     }
 
     @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        mINetworkCallBack.onNetWorkCallStarted();
+    }
+
+    @Override
     protected Result doInBackground(HashMap... maps) {
         HashMap<String, String> postDataParams = maps[0];
         Result responseResult = performPostCall(BASE_URL,postDataParams);

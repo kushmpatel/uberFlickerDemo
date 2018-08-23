@@ -18,55 +18,72 @@ import java.net.URL;
 import static com.uber.kush.IConstants.CACHE_DIRECTORY_PATH;
 
 public class DownloadAsyncTask extends AsyncTask<String,Integer,Bitmap> {
-    private AdapterPhotoList.HolderPhoto viewHolder;
+    private AdapterPhotoList adapter;
     private int gridViewImageHeightWidth;
     private PhotoVO photoVO;
+    private int position;
 
-    public DownloadAsyncTask(PhotoVO photoVO,AdapterPhotoList.HolderPhoto viewHolder,int gridViewImageHeightWidth){
+    public DownloadAsyncTask(PhotoVO photoVO, AdapterPhotoList viewHolder, int gridViewImageHeightWidth, int position){
         this.photoVO = photoVO;
-        this.viewHolder = viewHolder;
+        this.adapter = viewHolder;
         this.gridViewImageHeightWidth = gridViewImageHeightWidth;
+        this.position = position;
     }
     @Override
     protected Bitmap doInBackground(String... strings) {
-        Bitmap bitmap;
-        String cacheDirPath = CACHE_DIRECTORY_PATH;
-        File cacheFilePath = new File(cacheDirPath+"/"+photoVO.getId()+".jpg");
-        if(cacheFilePath.exists()){
-            bitmap = BitmapFactory.decodeFile(cacheFilePath.getAbsolutePath());
-        } else{
-            bitmap = getBitmapFromURL(strings[0]);
-        }
-        //bitmap = getResizedBitmap(bitmap,50,50);
+        Bitmap bitmap = getBitmapFromURL(strings[0]);
         return bitmap;
     }
 
     @Override
     protected void onPostExecute(Bitmap mBitmap) {
         super.onPostExecute(mBitmap);
-        if(mBitmap != null)
-            viewHolder.ivPhoto.setImageBitmap(mBitmap);
+        /*if(mBitmap != null) {
+            photoVO.setBitmap(mBitmap);
+            adapter.notifyDataSetChanged();
+        }*/
+        adapter.notifyItemChanged(position);
     }
 
     public Bitmap getBitmapFromURL(String src) {
+        InputStream input = null;
         try {
             URL url = new URL(src);
             HttpURLConnection connection = (HttpURLConnection) url
                     .openConnection();
             connection.setRequestMethod("GET");
             connection.setDoInput(true);
+            connection.setDoOutput(true);
             connection.connect();
-            InputStream input = connection.getInputStream();
-            Bitmap myBitmap = BitmapFactory.decodeStream(input);
+            input = connection.getInputStream();
 
             String cacheDirPath = CACHE_DIRECTORY_PATH;
+            if(!new File(cacheDirPath).isDirectory()){
+                new File(cacheDirPath).mkdirs();
+            }
             File cacheFilePath = new File(cacheDirPath+"/"+photoVO.getId()+".jpg");
             copyInputStreamToFile(input,cacheFilePath);
+
+            Bitmap myBitmap = BitmapFactory.decodeFile(cacheFilePath.getAbsolutePath());
+
             myBitmap = getResizedBitmap(myBitmap,gridViewImageHeightWidth,gridViewImageHeightWidth);
+
+            input.close();
+
             return myBitmap;
         } catch (IOException e) {
             e.printStackTrace();
             return null;
+        } finally {
+            try {
+                if ( input != null ) {
+                    input.close();
+                }
+
+            }
+            catch ( IOException e ) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -110,7 +127,6 @@ public class DownloadAsyncTask extends AsyncTask<String,Integer,Bitmap> {
 
                 // If you want to close the "in" InputStream yourself then remove this
                 // from here but ensure that you close it yourself eventually.
-                in.close();
             }
             catch ( IOException e ) {
                 e.printStackTrace();

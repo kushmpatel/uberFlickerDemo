@@ -23,4 +23,5 @@ public class IConstants {
     public static final String QUERY_PARAM_VALUE_SEARCH_KEY = "search_key";
 
     public static final  int PERMISSION_REQUEST_CODE_FOR_WRITE = 3;
+    public static final  int RECORD_SIZE = 20;
 }
