@@ -14,8 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.RequestOptions;
 import com.uber.kush.R;
 import com.uber.kush.backgroundtask.DownloadAsyncTask;
 import com.uber.kush.backgroundtask.DownloadThread;
@@ -33,18 +31,16 @@ public class AdapterPhotoList extends RecyclerView.Adapter<AdapterPhotoList.Hold
     private List<PhotoVO> listPhotos = new ArrayList();
     private Activity mActivity;
     private int gridViewImageHeightWidth;
-    private final RequestOptions requestOptions;
+    //private final RequestOptions requestOptions;
     private Handler mHandler;
 
     public AdapterPhotoList(Activity mActivity,List<PhotoVO> listPhotos){
         this.listPhotos = listPhotos;
         this.mActivity = mActivity;
         gridViewImageHeightWidth = mActivity.getResources().getDisplayMetrics().widthPixels * 1 / 3;
-        requestOptions = new RequestOptions();
-//        requestOptions.placeholder(R.drawable.default_file);
-//        requestOptions.error(R.drawable.default_file);
+        /*requestOptions = new RequestOptions();
         requestOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
-        requestOptions.override(gridViewImageHeightWidth, gridViewImageHeightWidth);
+        requestOptions.override(gridViewImageHeightWidth, gridViewImageHeightWidth);*/
 
         mHandler = new Handler(){
             @Override
