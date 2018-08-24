@@ -20,6 +20,9 @@ import javax.net.ssl.HttpsURLConnection;
 
 import static com.uber.kush.IConstants.*;
 
+/**
+ * Async task for Network Call
+ */
 public class NetworkCallAsync extends AsyncTask<HashMap,Void,Result> {
 
     private String BASE_URL = HTTPS_SCHEME+"//"+FLICKR_DOMAIN+"/"+REQUEST_PATH;
@@ -48,6 +51,12 @@ public class NetworkCallAsync extends AsyncTask<HashMap,Void,Result> {
         mINetworkCallBack.onNetWorkCallCompleted(s);
     }
 
+    /**
+     * Perform server call
+     * @param requestURL
+     * @param postDataParams
+     * @return
+     */
     public Result  performPostCall(String requestURL,
                                    HashMap<String, String> postDataParams) {
 
@@ -96,6 +105,12 @@ public class NetworkCallAsync extends AsyncTask<HashMap,Void,Result> {
         return result;
     }
 
+    /**
+     * Convert given parameter map to Post parameters
+     * @param params
+     * @return
+     * @throws UnsupportedEncodingException
+     */
     private String getPostDataString(HashMap<String, String> params) throws UnsupportedEncodingException {
         StringBuilder result = new StringBuilder();
         boolean first = true;

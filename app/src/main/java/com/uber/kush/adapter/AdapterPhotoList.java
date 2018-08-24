@@ -1,7 +1,6 @@
 package com.uber.kush.adapter;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -16,37 +15,37 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.uber.kush.R;
-import com.uber.kush.backgroundtask.DownloadAsyncTask;
 import com.uber.kush.backgroundtask.DownloadThread;
-import com.uber.kush.helper.UberLog;
 import com.uber.kush.model.PhotoVO;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.uber.kush.IConstants.CACHE_DIRECTORY_PATH;
 import static com.uber.kush.IConstants.UPDATE_ITEM;
 
+/**
+ * Adapter to render Photo List
+ */
 public class AdapterPhotoList extends RecyclerView.Adapter<AdapterPhotoList.HolderPhoto> {
-    private List<PhotoVO> listPhotos = new ArrayList();
+    private List<PhotoVO> listPhotos;
     private Context mActivity;
     private int gridViewImageHeightWidth;
     //private final RequestOptions requestOptions;
     private Handler mHandler;
 
-    public AdapterPhotoList(List<PhotoVO> listPhotos){
+    public AdapterPhotoList(List<PhotoVO> listPhotos) {
         this.listPhotos = listPhotos;
         /*requestOptions = new RequestOptions();
         requestOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
         requestOptions.override(gridViewImageHeightWidth, gridViewImageHeightWidth);*/
 
-        mHandler = new Handler(){
+        mHandler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
 
-                if(msg.what == UPDATE_ITEM){
+                if (msg.what == UPDATE_ITEM) {
                     notifyItemChanged(msg.arg1);
                 }
             }
@@ -57,7 +56,7 @@ public class AdapterPhotoList extends RecyclerView.Adapter<AdapterPhotoList.Hold
     @Override
     public HolderPhoto onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         mActivity = parent.getContext();
-        gridViewImageHeightWidth = mActivity.getResources().getDisplayMetrics().widthPixels * 1 / 3;
+        gridViewImageHeightWidth = mActivity.getResources().getDisplayMetrics().widthPixels / 3;
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_row_photo, parent, false);
         return new HolderPhoto(itemView);
     }
@@ -71,25 +70,20 @@ public class AdapterPhotoList extends RecyclerView.Adapter<AdapterPhotoList.Hold
                     photoVO.getServer(),
                     photoVO.getId(),
                     photoVO.getSecret());
-
-
             //Glide.with(mActivity).load(url).apply(requestOptions).into(holder.ivPhoto);
-
             String cacheDirPath = CACHE_DIRECTORY_PATH;
-            File cacheFilePath = new File(cacheDirPath+"/"+photoVO.getId()+".jpg");
-            if(cacheFilePath.exists()){
-                UberLog.d(DownloadAsyncTask.class.getSimpleName(),photoVO.getId()+" is already exist");
+            File cacheFilePath = new File(cacheDirPath + "/" + photoVO.getId() + ".jpg");
+            if (cacheFilePath.exists()) {
                 Bitmap bitmap = BitmapFactory.decodeFile(cacheFilePath.getAbsolutePath());
-                bitmap =  getResizedBitmap(bitmap,gridViewImageHeightWidth,gridViewImageHeightWidth);
+                bitmap = getResizedBitmap(bitmap, gridViewImageHeightWidth, gridViewImageHeightWidth);
                 holder.ivPhoto.setImageBitmap(bitmap);
-            } else{
+            } else {
                 /*DownloadAsyncTask mDownloadAsyncTask = new DownloadAsyncTask(photoVO,this,gridViewImageHeightWidth,position);
                 mDownloadAsyncTask.execute(url);*/
-
-                DownloadThread mDownloadThread = new DownloadThread(url,photoVO,this,gridViewImageHeightWidth,position,mHandler);
+                DownloadThread mDownloadThread = new DownloadThread(url, photoVO, this, gridViewImageHeightWidth, position, mHandler);
                 mDownloadThread.start();
             }
-        } catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
@@ -100,24 +94,29 @@ public class AdapterPhotoList extends RecyclerView.Adapter<AdapterPhotoList.Hold
     }
 
     public class HolderPhoto extends RecyclerView.ViewHolder {
-       public ImageView ivPhoto;
+        public ImageView ivPhoto;
+
         public HolderPhoto(View itemView) {
             super(itemView);
             ivPhoto = (ImageView) itemView.findViewById(R.id.ivPhoto);
         }
     }
 
+    /**
+     * Resize Bitmap with given height and Width
+     *
+     * @param bm
+     * @param newHeight
+     * @param newWidth
+     * @return
+     */
     public Bitmap getResizedBitmap(Bitmap bm, int newHeight, int newWidth) {
         int width = bm.getWidth();
         int height = bm.getHeight();
         float scaleWidth = ((float) newWidth) / width;
         float scaleHeight = ((float) newHeight) / height;
-        // CREATE A MATRIX FOR THE MANIPULATION
         Matrix matrix = new Matrix();
-        // RESIZE THE BIT MAP
         matrix.postScale(scaleWidth, scaleHeight);
-
-        // "RECREATE" THE NEW BITMAP
         Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height,
                 matrix, false);
 

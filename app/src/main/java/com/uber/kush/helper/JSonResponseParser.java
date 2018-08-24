@@ -10,8 +10,16 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class to parse JSon
+ */
 public class JSonResponseParser {
 
+    /**
+     * Parse Json for Photo List Response
+     * @param responseJson
+     * @return
+     */
     public PhotoResponseVO getPhotoResponseVO(String responseJson){
         PhotoResponseVO mPhotoResponseVO = null;
         try{

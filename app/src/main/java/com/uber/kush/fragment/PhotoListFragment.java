@@ -56,11 +56,10 @@ public class PhotoListFragment extends Fragment implements SearchView.OnQueryTex
     private View view;
     private RecyclerView rvPhotoList;
     private Toolbar toolbar;
-    private INetworkCallBack mINetworkCallBack;
     private int currentPage = 1;
     private boolean loading = true;
     private String mQuery;
-    List<PhotoVO> listPhotos = new ArrayList<>();
+    private List<PhotoVO> listPhotos = new ArrayList<>();
     private AdapterPhotoList mAdapterPhotoList = null;
     private ProgressBar pbProgress;
     private int totalPages;
@@ -129,6 +128,9 @@ public class PhotoListFragment extends Fragment implements SearchView.OnQueryTex
         setRecyclerLayoutManager();
     }
 
+    /**
+     * Make server call for Next Page
+     */
     private void doCallNextPage() {
         currentPage++;
         if(currentPage <= totalPages) {
@@ -175,6 +177,9 @@ public class PhotoListFragment extends Fragment implements SearchView.OnQueryTex
         return false;
     }
 
+    /**
+     * Set basic Layout property for RecyclerView
+     */
     private void setRecyclerLayoutManager(){
         GridLayoutManager gridLayoutManager = new GridLayoutManager(mActivity,3, LinearLayoutManager.VERTICAL,false);
         rvPhotoList.setLayoutManager(gridLayoutManager);
@@ -209,20 +214,26 @@ public class PhotoListFragment extends Fragment implements SearchView.OnQueryTex
                 mAdapterPhotoList.notifyDataSetChanged();
             }
         }
-        UberLog.d(PhotoListFragment.class.getSimpleName(),"Parsed Successfully");
     }
 
+    /**
+     * Hide Keyboard
+     * @param activity
+     */
     private void hideKeyboard(Activity activity) {
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        //Find the currently focused view, so we can grab the correct window token from it.
         View view = activity.getCurrentFocus();
-        //If no view currently has focus, create a new one, just so we can grab a window token from it
         if (view == null) {
             view = new View(activity);
         }
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
+    /**
+     * Generate Post Data Parameters for your query
+     * @param query
+     * @return
+     */
     private HashMap<String, String> generatePostDataParams(String query){
         HashMap<String, String> postDataParams = new HashMap();
         postDataParams.put(QUERY_PARAM_METHOD_KEY,QUERY_PARAM_VALUE_FLICKR_PHOTOS_SEARCH_VALUE);
@@ -236,6 +247,9 @@ public class PhotoListFragment extends Fragment implements SearchView.OnQueryTex
         return postDataParams;
     }
 
+    /**
+     * Reset RecyclerView
+     */
     private void resetRecyclerView(){
         currentPage = 1;
         totalPages = 0;
