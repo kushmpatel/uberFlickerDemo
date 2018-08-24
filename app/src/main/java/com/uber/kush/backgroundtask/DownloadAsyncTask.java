@@ -38,10 +38,6 @@ public class DownloadAsyncTask extends AsyncTask<String,Integer,Bitmap> {
     @Override
     protected void onPostExecute(Bitmap mBitmap) {
         super.onPostExecute(mBitmap);
-        /*if(mBitmap != null) {
-            photoVO.setBitmap(mBitmap);
-            adapter.notifyDataSetChanged();
-        }*/
         adapter.notifyItemChanged(position);
     }
 

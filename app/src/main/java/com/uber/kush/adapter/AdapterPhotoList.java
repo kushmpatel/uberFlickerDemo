@@ -80,7 +80,7 @@ public class AdapterPhotoList extends RecyclerView.Adapter<AdapterPhotoList.Hold
             } else {
                 /*DownloadAsyncTask mDownloadAsyncTask = new DownloadAsyncTask(photoVO,this,gridViewImageHeightWidth,position);
                 mDownloadAsyncTask.execute(url);*/
-                DownloadThread mDownloadThread = new DownloadThread(url, photoVO, this, gridViewImageHeightWidth, position, mHandler);
+                DownloadThread mDownloadThread = new DownloadThread(url, photoVO, position, mHandler);
                 mDownloadThread.start();
             }
         } catch (Exception ex) {

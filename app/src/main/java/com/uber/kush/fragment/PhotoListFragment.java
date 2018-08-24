@@ -103,7 +103,6 @@ public class PhotoListFragment extends Fragment implements SearchView.OnQueryTex
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 if (dy > 0) {
-                    System.out.println("Scrolled Upwards");
                     int visibleItemCount = ((LinearLayoutManager) rvPhotoList.getLayoutManager()).getChildCount();
                     int totalItemCount = ((LinearLayoutManager) rvPhotoList.getLayoutManager()).getItemCount();
                     int pastVisibleItems = ((LinearLayoutManager) rvPhotoList.getLayoutManager()).findFirstCompletelyVisibleItemPosition();

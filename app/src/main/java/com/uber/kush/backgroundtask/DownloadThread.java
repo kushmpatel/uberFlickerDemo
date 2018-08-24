@@ -5,7 +5,6 @@ import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Message;
 
-import com.uber.kush.adapter.AdapterPhotoList;
 import com.uber.kush.model.PhotoVO;
 
 import java.io.File;
@@ -18,18 +17,17 @@ import java.net.URL;
 import static com.uber.kush.IConstants.CACHE_DIRECTORY_PATH;
 import static com.uber.kush.IConstants.UPDATE_ITEM;
 
+/**
+ * Thread to download Images from Server
+ */
 public class DownloadThread extends Thread {
-    private AdapterPhotoList adapter;
-    private int gridViewImageHeightWidth;
     private PhotoVO photoVO;
     private int position;
     private String url;
     private Handler mHandler;
 
-    public DownloadThread(String url, PhotoVO photoVO, AdapterPhotoList viewHolder, int gridViewImageHeightWidth, int position, Handler mHandler){
+    public DownloadThread(String url, PhotoVO photoVO, int position, Handler mHandler){
         this.photoVO = photoVO;
-        this.adapter = viewHolder;
-        this.gridViewImageHeightWidth = gridViewImageHeightWidth;
         this.position = position;
         this.url = url;
         this.mHandler = mHandler;
@@ -42,7 +40,12 @@ public class DownloadThread extends Thread {
         mHandler.sendMessage(message);
     }
 
-    public Bitmap getBitmapFromURL(String src) {
+    /**
+     * Method to download Image From Server
+     * @param src
+     * @return
+     */
+    private Bitmap getBitmapFromURL(String src) {
         InputStream input = null;
         try {
             URL url = new URL(src);
@@ -63,44 +66,21 @@ public class DownloadThread extends Thread {
 
             Bitmap myBitmap = BitmapFactory.decodeFile(cacheFilePath.getAbsolutePath());
 
-            //myBitmap = getResizedBitmap(myBitmap,gridViewImageHeightWidth,gridViewImageHeightWidth);
-
-            input.close();
-
             return myBitmap;
         } catch (IOException e) {
             e.printStackTrace();
             return null;
-        } finally {
-            try {
-                if ( input != null ) {
-                    input.close();
-                }
-
-            }
-            catch ( IOException e ) {
-                e.printStackTrace();
-            }
+        } catch (Exception ex){
+            ex.printStackTrace();
+            return null;
         }
     }
 
-   /* public Bitmap getResizedBitmap(Bitmap bm, int newHeight, int newWidth) {
-        int width = bm.getWidth();
-        int height = bm.getHeight();
-        float scaleWidth = ((float) newWidth) / width;
-        float scaleHeight = ((float) newHeight) / height;
-        // CREATE A MATRIX FOR THE MANIPULATION
-        Matrix matrix = new Matrix();
-        // RESIZE THE BIT MAP
-        matrix.postScale(scaleWidth, scaleHeight);
-
-        // "RECREATE" THE NEW BITMAP
-        Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height,
-                matrix, false);
-
-        return resizedBitmap;
-    }*/
-
+    /**
+     * Copy input stream to provided File Path
+     * @param in
+     * @param file
+     */
     private void copyInputStreamToFile(InputStream in, File file) {
         FileOutputStream out = null;
 
@@ -116,14 +96,16 @@ public class DownloadThread extends Thread {
             e.printStackTrace();
         }
         finally {
-            // Ensure that the InputStreams are closed even if there's an exception.
             try {
+
+                if ( in != null ) {
+                    in.close();
+                }
+
                 if ( out != null ) {
                     out.close();
                 }
 
-                // If you want to close the "in" InputStream yourself then remove this
-                // from here but ensure that you close it yourself eventually.
             }
             catch ( IOException e ) {
                 e.printStackTrace();
