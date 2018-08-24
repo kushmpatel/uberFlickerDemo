@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import com.uber.kush.R;
@@ -62,6 +63,7 @@ public class PhotoListFragment extends Fragment implements SearchView.OnQueryTex
     List<PhotoVO> listPhotos = new ArrayList<>();
     private AdapterPhotoList mAdapterPhotoList = null;
     private ProgressBar pbProgress;
+    private int totalPages;
 
     @Override
     public void onAttach(Context context) {
@@ -129,10 +131,11 @@ public class PhotoListFragment extends Fragment implements SearchView.OnQueryTex
 
     private void doCallNextPage() {
         currentPage++;
-
-        HashMap<String, String> postDataParams = generatePostDataParams(mQuery);
-        NetworkCallAsync mNetworkCallAsync = new NetworkCallAsync(this);
-        mNetworkCallAsync.execute(postDataParams);
+        if(currentPage <= totalPages) {
+            HashMap<String, String> postDataParams = generatePostDataParams(mQuery);
+            NetworkCallAsync mNetworkCallAsync = new NetworkCallAsync(this);
+            mNetworkCallAsync.execute(postDataParams);
+        }
     }
 
     @Override
@@ -140,8 +143,18 @@ public class PhotoListFragment extends Fragment implements SearchView.OnQueryTex
         inflater.inflate(R.menu.menu_search, menu);
         final MenuItem myActionMenuItem = menu.findItem( R.id.search);
         final SearchView searchView = (SearchView) myActionMenuItem.getActionView();
+        searchView.setIconifiedByDefault(false);
         searchView.setMaxWidth(Integer.MAX_VALUE);
         searchView.setOnQueryTextListener(this);
+        searchView.requestFocus();
+        EditText searchEditText = searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
+        InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(searchView, InputMethodManager.SHOW_IMPLICIT);
+        searchEditText.setText("kittens");
+        mQuery = "kittens";
+        HashMap<String, String> postDataParams = generatePostDataParams(mQuery);
+        NetworkCallAsync mNetworkCallAsync = new NetworkCallAsync(this);
+        mNetworkCallAsync.execute(postDataParams);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -187,8 +200,9 @@ public class PhotoListFragment extends Fragment implements SearchView.OnQueryTex
         List<PhotoVO> tempListPhotos = mPhotoResponseVO.getPhoto();
         loading = true;
         listPhotos.addAll(tempListPhotos);
+        totalPages = mPhotoResponseVO.getPages();
         if(currentPage == 1) {
-            mAdapterPhotoList = new AdapterPhotoList(mActivity, listPhotos);
+            mAdapterPhotoList = new AdapterPhotoList(listPhotos);
             rvPhotoList.setAdapter(mAdapterPhotoList);
         } else{
             if(mAdapterPhotoList != null){
@@ -224,6 +238,7 @@ public class PhotoListFragment extends Fragment implements SearchView.OnQueryTex
 
     private void resetRecyclerView(){
         currentPage = 1;
+        totalPages = 0;
         listPhotos.clear();
 
         if(mAdapterPhotoList != null)

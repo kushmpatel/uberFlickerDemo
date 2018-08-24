@@ -23,9 +23,9 @@ public class DownloadAsyncTask extends AsyncTask<String,Integer,Bitmap> {
     private PhotoVO photoVO;
     private int position;
 
-    public DownloadAsyncTask(PhotoVO photoVO, AdapterPhotoList viewHolder, int gridViewImageHeightWidth, int position){
+    public DownloadAsyncTask(PhotoVO photoVO, AdapterPhotoList adapter, int gridViewImageHeightWidth, int position){
         this.photoVO = photoVO;
-        this.adapter = viewHolder;
+        this.adapter = adapter;
         this.gridViewImageHeightWidth = gridViewImageHeightWidth;
         this.position = position;
     }

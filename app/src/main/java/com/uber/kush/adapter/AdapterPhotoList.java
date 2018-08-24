@@ -2,6 +2,7 @@ package com.uber.kush.adapter;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -29,15 +30,13 @@ import static com.uber.kush.IConstants.UPDATE_ITEM;
 
 public class AdapterPhotoList extends RecyclerView.Adapter<AdapterPhotoList.HolderPhoto> {
     private List<PhotoVO> listPhotos = new ArrayList();
-    private Activity mActivity;
+    private Context mActivity;
     private int gridViewImageHeightWidth;
     //private final RequestOptions requestOptions;
     private Handler mHandler;
 
-    public AdapterPhotoList(Activity mActivity,List<PhotoVO> listPhotos){
+    public AdapterPhotoList(List<PhotoVO> listPhotos){
         this.listPhotos = listPhotos;
-        this.mActivity = mActivity;
-        gridViewImageHeightWidth = mActivity.getResources().getDisplayMetrics().widthPixels * 1 / 3;
         /*requestOptions = new RequestOptions();
         requestOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
         requestOptions.override(gridViewImageHeightWidth, gridViewImageHeightWidth);*/
@@ -57,6 +56,8 @@ public class AdapterPhotoList extends RecyclerView.Adapter<AdapterPhotoList.Hold
     @NonNull
     @Override
     public HolderPhoto onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        mActivity = parent.getContext();
+        gridViewImageHeightWidth = mActivity.getResources().getDisplayMetrics().widthPixels * 1 / 3;
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_row_photo, parent, false);
         return new HolderPhoto(itemView);
     }
